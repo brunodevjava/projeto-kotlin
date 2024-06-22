@@ -1,16 +1,14 @@
 package br.com.project.kotlin_teste.entity
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.Table
-import jakarta.validation.constraints.Email
-import jakarta.validation.constraints.NotNull
+import br.com.project.kotlin_teste.dto.user.UserRegisterDTO
+import jakarta.persistence.*
 import jakarta.validation.constraints.Size
+import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.validator.constraints.br.CPF
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
+import java.time.OffsetDateTime
+import java.time.ZoneId
 
 @Entity
 @Table(name = "usuario")
@@ -19,25 +17,42 @@ data class User(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
-    @field:NotNull(message = "O nome não pode ser nulo")
     @field:Size(min = 1, max = 255, message = "Erro no tamanho de caracteres do nome")
-    val name: String,
+    var name: String,
 
-    @field:NotNull(message = "O email não pode ser nulo")
     @field:Size(min = 1, max = 255, message = "Erro no tamanho de caracteres do email")
-    @Email
-    val email: String?,
+    var email: String,
 
-    @field:NotNull(message = "O cpf não pode ser nulo")
     @CPF(message = "CPF inválido!")
-    val cpf: String?,
+    var cpf: String,
 
+    @field:Size(min = 1, max = 255, message = "Erro no tamanho de caracteres da senha")
+    var senha: String,
 
-    @field:NotNull(message = "A senha não pode ser nula")
-    @field:Size(min = 1, max = 50, message = "Erro no tamanho de caracteres da senha")
-    val senha: String?
+    var status: Boolean,
+
+    @CreationTimestamp
+    var dataCriacao: OffsetDateTime? = null
+
 
 ) : UserDetails {
+
+
+    @PrePersist
+    fun prePersist() {
+        dataCriacao = OffsetDateTime.now(ZoneId.of("America/Sao_Paulo"))
+        status = true
+
+    }
+
+    constructor(userRegisterDTO: UserRegisterDTO) : this(
+        name = userRegisterDTO.name,
+        email = userRegisterDTO.email,
+        cpf = userRegisterDTO.cpf,
+        senha = userRegisterDTO.senha,
+        status = true
+    )
+
 
     override fun getUsername(): String {
         return email ?: ""
@@ -47,13 +62,14 @@ data class User(
         return senha ?: ""
     }
 
+
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
         // Aqui você pode retornar as permissões (roles) do usuário, se aplicável
         return mutableListOf()
     }
 
     override fun isEnabled(): Boolean {
-        return true // Altere conforme lógica de habilitação do usuário
+        return status // Altere conforme lógica de habilitação do usuário
     }
 
     override fun isCredentialsNonExpired(): Boolean {

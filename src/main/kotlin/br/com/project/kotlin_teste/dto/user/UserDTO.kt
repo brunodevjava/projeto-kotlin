@@ -1,4 +1,4 @@
-package br.com.project.kotlin_teste.dto
+package br.com.project.kotlin_teste.dto.user
 
 data class UserDTO(
     val id: Long?,

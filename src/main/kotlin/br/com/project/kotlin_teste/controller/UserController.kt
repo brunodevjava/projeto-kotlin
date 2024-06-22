@@ -1,5 +1,7 @@
 package br.com.project.kotlin_teste.controller
 
+import br.com.project.kotlin_teste.dto.user.UserDetailsDTO
+import br.com.project.kotlin_teste.dto.user.UserRegisterDTO
 import br.com.project.kotlin_teste.entity.User
 import br.com.project.kotlin_teste.service.UserService
 import org.springframework.http.HttpStatus
@@ -24,8 +26,8 @@ class UserController(private val userService: UserService) {
     }
 
     @PostMapping
-    fun createUser(@RequestBody user: User): ResponseEntity<User> {
-        val createdUser = userService.save(user)
+    fun createUser(@RequestBody user: UserRegisterDTO): ResponseEntity<UserDetailsDTO> {
+        val createdUser = userService.create(user)
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser)
     }
 

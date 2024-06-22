@@ -28,7 +28,7 @@ class SecurityService @Autowired constructor(
         try {
             val algorithm = getAlgorithm()
             return JWT.create()
-                .withIssuer("Gestão Imoveis LT Cloud")
+                .withIssuer("TESTE-KOTLIN")
                 .withSubject(email)
                 .withExpiresAt(getTokenExpirationTime())
                 .sign(algorithm)
@@ -50,7 +50,7 @@ class SecurityService @Autowired constructor(
     private fun getSubject(token: String): String {
         val algorithm = getAlgorithm()
         return JWT.require(algorithm)
-            .withIssuer("Gestão Imoveis LT Cloud")
+            .withIssuer("TESTE-KOTLIN")
             .build()
             .verify(token)
             .subject
