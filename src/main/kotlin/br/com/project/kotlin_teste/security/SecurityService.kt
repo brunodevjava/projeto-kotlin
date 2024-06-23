@@ -1,6 +1,7 @@
 package br.com.project.kotlin_teste.security
 
-import br.com.project.kotlin_teste.dto.VerificaTokenDTO
+import br.com.project.kotlin_teste.dto.auth.VerificaTokenDTO
+import br.com.project.kotlin_teste.entity.User
 import br.com.project.kotlin_teste.repository.UserRepository
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
@@ -42,22 +43,30 @@ class SecurityService @Autowired constructor(
         return Date.from(Instant.now().plusSeconds(expirationInterval.toLong() * 3600))
     }
 
+    @Throws(SecurityException::class)
     private fun getRequestToken(request: HttpServletRequest): String? {
         val authHeader = request.getHeader("Authorization")
-        return authHeader?.replace("Bearer ", "")
+        if (authHeader != null) {
+            return authHeader.replace("Bearer ".toRegex(), "")
+        }
+
+        return null
     }
 
+    @Throws(SecurityException::class)
     private fun getSubject(token: String): String {
-        val algorithm = getAlgorithm()
-        return JWT.require(algorithm)
-            .withIssuer("TESTE-KOTLIN")
+        val algorithm = this.getAlgorithm()
+
+        return JWT
+            .require(algorithm)
+            .withIssuer("Gestão Imoveis LT Cloud")
             .build()
             .verify(token)
             .subject
     }
 
     private fun getAlgorithm(): Algorithm {
-        return Algorithm.HMAC256(env.getProperty("security.hmac-secret") ?: "default-secret")
+        return Algorithm.HMAC256(env.getProperty("security.hmac-secret"))
     }
 
     @Throws(SecurityException::class)
@@ -68,6 +77,7 @@ class SecurityService @Autowired constructor(
         val authentication = UsernamePasswordAuthenticationToken(user, null, user.authorities)
         SecurityContextHolder.getContext().authentication = authentication
     }
+
 
     fun validateToken(token: VerificaTokenDTO): ResponseEntity<String> {
         try {
@@ -84,5 +94,4 @@ class SecurityService @Autowired constructor(
                 .body("O token é inválido.")
         }
     }
-
 }

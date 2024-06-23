@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.validator.constraints.br.CPF
 import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -54,33 +55,32 @@ data class User(
     )
 
 
-    override fun getUsername(): String {
-        return email ?: ""
+    override fun getAuthorities(): Collection<GrantedAuthority?> {
+        return listOf(SimpleGrantedAuthority("ROLE_USER"))
     }
 
     override fun getPassword(): String {
-        return senha ?: ""
+        return this.senha
     }
 
-
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
-        // Aqui você pode retornar as permissões (roles) do usuário, se aplicável
-        return mutableListOf()
-    }
-
-    override fun isEnabled(): Boolean {
-        return status // Altere conforme lógica de habilitação do usuário
-    }
-
-    override fun isCredentialsNonExpired(): Boolean {
-        return true // Altere conforme lógica de expiração de credenciais
+    override fun getUsername(): String {
+        return this.email
     }
 
     override fun isAccountNonExpired(): Boolean {
-        return true // Altere conforme lógica de expiração de conta
+        return true
     }
 
     override fun isAccountNonLocked(): Boolean {
-        return true // Altere conforme lógica de conta bloqueada
+        return true
     }
+
+    override fun isCredentialsNonExpired(): Boolean {
+        return true
+    }
+
+    override fun isEnabled(): Boolean {
+        return this.status
+    }
+
 }

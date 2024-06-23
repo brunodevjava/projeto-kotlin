@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface UserRepository : JpaRepository<User, Long>{
 
-    fun findByEmail(email: String): User?
+    fun findByEmail(email: String): User
 
 
     @Query("SELECT COUNT(u.id) > 0 FROM User u WHERE u.email = :email")

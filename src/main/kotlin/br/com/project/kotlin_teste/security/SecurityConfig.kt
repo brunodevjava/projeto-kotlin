@@ -26,7 +26,6 @@ import org.springframework.web.cors.CorsConfiguration
 class SecurityConfig(
     private val securityFilter: SecurityFilter
 ) {
-
     @Bean
     @Throws(Exception::class)
     protected fun configure(http: HttpSecurity): SecurityFilterChain {
@@ -48,17 +47,18 @@ class SecurityConfig(
                     SessionCreationPolicy.STATELESS
                 )
             }
-            .authorizeHttpRequests(Customizer { auth ->
+            .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers(
-                        "/login",
-                        "/usuario"
+                        "/login/auth",
+                        "/usuario",
                     ).permitAll()
                     .anyRequest().authenticated()
-            })
+            }
             .addFilterBefore(this.securityFilter, UsernamePasswordAuthenticationFilter::class.java)
             .build()
     }
+
     @Bean
     fun authenticationManager(authenticationConfiguration: AuthenticationConfiguration): AuthenticationManager {
         return authenticationConfiguration.authenticationManager
@@ -68,5 +68,4 @@ class SecurityConfig(
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
     }
-
 }
